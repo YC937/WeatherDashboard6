@@ -1,75 +1,44 @@
-body {
-    margin: 2%;
+.list-group button{
+    margin: 2px;
 }
 
-header {
-    margin-top: 1%;
-    background-image: linear-gradient(to left, #545a9e, #8c8ad7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: azure;
+main {
+    max-width: 2000px;
+    margin: 5px;
 }
 
-h1 {
-    font-size: 2.5em;
-    font-weight: bold;
+.row {
+    margin: 5px;
+}
+
+#top {
+text-align: center;
+color: rgb(255, 255, 255);
+background: #4c6daa;
+padding: 8px;
+}
+
+#search-btn {
+    text-align: center;
+    color: aliceblue;
+    background: #4b6fb3;
+    margin: 2px;
+    min-width: 110px;
 }
 
 h2 {
+    font-size: 1.6rem;
+}
+
+p {
     font-size: 1.5em;
-    font-weight:bold;
-    padding-top: 0.5em;
 }
 
-.city {
-    display: flex;
+.card-img-top {
+    width: 10%;
 }
 
-.days {
-    background-color:blue;
-    color: white;
-    margin-top: 3em;
-}
-
-#search-city {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-}
-
-.button {
-    background-color: lightgreen;
-    color: white;
-    border-style: hidden;
-}
-
-#search-data {
-    padding-top: 20%;
-}
-
-#past-city {
-    background-color: rgb(23, 43, 59);
-    color: aliceblue;
-    border-style: hidden;
-}
-
-#city-name-date {
-    font-size: 1.7em;
-    align-items: center;
-}
-
-#current-data {
-    margin-top: 1em;
-    border: solid 1px black;
-}
-
-#today-icon {
-    width: 15%;
-}
-
-@media screen and (max-width = 768px) {
-    .days {
-        margin-top: 2em;
-    }
+.card-body {
+    background-color: #302f8d;
+    color: azure;
 }

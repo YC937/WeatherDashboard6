@@ -1,208 +1,123 @@
-// List of all variables using id.
-var searchBtn = document.querySelector("#search");
-var currentCity = document.querySelector("#current-city");
-var searchCity = document.querySelector("#city-search")
-var searchData = document.querySelector("#search-data");
-var clearData = document.querySelector("#clear");
-var currentTemp = document.querySelector("#current-temp");
-var currentWind = document.querySelector("#current-wind");
-var currentHumid = document.querySelector("#current-humid");
-var firstDayTemp = document.querySelector("#first-day-temp");
-var firstDayWind = document.querySelector("#first-day-wind");
-var firstDayHumid = document.querySelector("#first-day-humid");
-var secondDayTemp = document.querySelector("#second-day-temp");
-var secondDayWind = document.querySelector("#second-day-wind");
-var secondDayHumid = document.querySelector("#second-day-humid");
-var thirdDayTemp = document.querySelector("#third-day-temp");
-var thirdDayWind = document.querySelector("#third-day-wind");
-var thirdDayHumid = document.querySelector("#third-day-humid");
-var fourthDayTemp = document.querySelector("#fourth-day-temp");
-var fourthDayWind = document.querySelector("#fourth-day-wind");
-var fourthDayHumid = document.querySelector("#fourth-day-humid");
-var fifthDayTemp = document.querySelector("#fifth-day-temp");
-var fifthDayWind = document.querySelector("#fifth-day-wind");
-var fifthDayHumid = document.querySelector("#fifth-day-humid");
-var todayIcon = document.querySelector("#today-icon");
-var firstDayIcon = document.querySelector("#first-day-icon");
-var secondDayIcon = document.querySelector("#second-day-icon");
-var thirdDayIcon = document.querySelector("#third-day-icon");
-var fourthDayIcon = document.querySelector("#fourth-day-icon");
-var fifthDayIcon = document.querySelector("#fifth-day-icon");
-//Using dayjs to desiplay the dates.
-var currentDate = dayjs();
-$('#current-date').text(currentDate.format("M/D/YYYY"));
-var dayOne = currentDate.add(1,'day');
-$('#day-one').text(dayOne.format("M/D/YYYY"));
-var dayTwo = dayOne.add(1,'day');
-$('#day-two').text(dayTwo.format("M/D/YYYY"));
-var dayThree = dayTwo.add(1,'day');
-$('#day-three').text(dayThree.format("M/D/YYYY"));
-var dayFour = dayThree.add(1,'day');
-$('#day-four').text(dayFour.format("M/D/YYYY"));
-var dayFifth = dayFour.add(1,'day');
-$('#day-fifth').text(dayFifth.format("M/D/YYYY"));
+var API_KEY = '670a481f9b9e4393630b40035da27bfc';
+var cityBtnList = [];
+let cityName = '';
+let searchBtn = '';
 
-//Clear button function.
-clearData.addEventListener("click", function () {
-  localStorage.clear();
-  location.reload();
+function getCurrentWeather(city) {
+    var requestUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}`
+    $.get(requestUrl, function (response) {
+        var currentCity = city + ' - '
+        var todayData = response.list[0];
+        var currentDate = dayjs(todayData.dt_txt).format('MM/DD/YYYY');
+        var iconUrl = `https://openweathermap.org/img/w/${todayData.weather[0].icon}.png`;
+        var tempF = 'Temp: ' + todayData.main.temp + '°F';
+        var windSpeedMph = 'Wind: ' + todayData.wind.speed + 'MPH';
+        var humidity = 'Humidity: ' + todayData.main.humidity + '%';
+        $("#nameCurrent").text(currentCity);
+        $("#dateCurrent").text(currentDate);
+        if ($("#imgCurrent").length > 0) {
+          $("#imgCurrent").remove();
+        }
+        var icon = $('<img>').addClass('card-img-top weather-img mr-5 mb-0').attr('src', iconUrl).attr('alt', 'weather icon').attr('id', 'imgCurrent');
+        $('#current-flex-box').append(icon);
+        $("#tempCurrent").text(tempF);
+        $("#windCurrent").text(windSpeedMph);
+        $("#humidityCurrent").text(humidity);
+
+        if ($("#five-days-weather .card").length > 0) {
+          $("#five-days-weather .card").remove();
+          $("#five-days-weather").remove();
+        }
+        var div = $('<div>').attr('id', 'five-days-weather').addClass('d-flex flex-wrap justify-content-between align-items-center border-2-purple');
+        $('#parrentDiv').append(div);
+
+        // Get data for the next 5 days
+        for (var i = 1; i <= 5; i++) {
+            var forecastData = response.list[i * 8 - 1];
+            var date = dayjs(forecastData.dt_txt).format('MM/DD/YYYY');
+            var forecastIconUrl = `https://openweathermap.org/img/w/${forecastData.weather[0].icon}.png`;
+            var forecastTempF = forecastData.main.temp;
+            var forecastWindSpeedMph = forecastData.wind.speed;
+            var forecastHumidity = forecastData.main.humidity;
+            var card = $('<div>').addClass('card col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-2');
+            var cardBody = $('<div>').addClass('card-body');
+            var date = $('<h5>').addClass('card-date').text(date).attr('id', 'forecast-date-' + i);
+            var icon = $('<img>').addClass('card-img-top weather-img mr-5 mb-0').attr('src', forecastIconUrl).attr('alt', 'weather icon').attr('id', 'forecast-icon-' + i);
+            var temp = $('<p>').addClass('card-temp').text('Temp: ' + forecastTempF + '°F').attr('id', 'forecast-temp-f-' + i);
+            var wind = $('<p>').addClass('card-wind').text('Wind: ' + forecastWindSpeedMph + 'MPH').attr('id', 'forecast-wind-mph-' + i);
+            var humidity = $('<p>').addClass('card-humidity').text('Humidity: ' + forecastHumidity + '%').attr('id', 'forecast-humidity-' + i);
+            cardBody.append(date, icon, temp, wind, humidity);
+            card.append(cardBody);
+            div.append(card);
+            $('#five-days-weather').append(div);
+        }
+    }).fail(function (xhr, status, error) {
+        var response = xhr.responseJSON;
+        if (response && response.cod && response.cod !== '200') {
+          alert("Error: " + response.message);
+        } else {
+          alert("Error: " + error);
+        }
+    });
+    return;
+}
+
+// Search for the city
+function searchCity(button, city) {
+  getCurrentWeather(city);
+  return;
+}
+
+function renderCityButton(city) {
+    if ($.inArray(city, cityBtnList) !== -1) {
+        return;
+    } else {
+        var newButton = $('<button>', {
+            id: cityBtnList.length,
+            class: 'btn btn-secondary',
+            text: city
+        });
+
+        $('.list-group').append(newButton);
+        return;
+    }
+}
+function init() {
+    console.log('data in local Storage');
+    var cityBtnList = JSON.parse(localStorage.getItem('searchHistory'));
+    console.log(cityBtnList);
+    if (!cityBtnList){return};
+    for (var i = 0; i < cityBtnList.length; i++) {
+        var cityName = cityBtnList[i];
+        console.log(cityName);
+        var newButton = $('<button>', {
+            id: i,
+            class: 'btn btn-secondary',
+            text: cityName
+        });
+        $('.list-group').append(newButton);
+     }
+    return;
+}
+
+$(document).ready(function () {
+    init();
+    $('#searchBtn').click(function () {
+        searchBtn = $(this).attr('id');
+        cityName = $('#searchInput').val();
+        if (!cityName) return;
+        renderCityButton(cityName);
+        cityBtnList.push(cityName);
+        localStorage.setItem('searchHistory', JSON.stringify(cityBtnList));
+        searchCity(searchBtn, cityName);
+        cityName = '';
+        $('#searchInput').val(cityName);
+        return;
+    });
 });
 
-//Initial function
-function init() {
-  var cityList = [];
-  cityList = JSON.parse(localStorage.getItem("searchedCities"));
-if(cityList !== null) {
-  for(var i = 0; i < cityList.length; i++) {
-    var listEl = document.createElement("button");
-    listEl.textContent = cityList[i];
-    listEl.setAttribute("class", "col-12 col-md-8");
-    listEl.setAttribute("style", "background-color: rgb(9, 133, 235); color: aliceblue; border-style: hidden; margin-top: 2%")
-    searchData.append(listEl);
-    listEl.addEventListener("click", searchHistoryBtn);
-  }
-  
-}
-};
-
-//Function when we click previous searched cities and we display data on the website
-function searchHistoryBtn () {
-console.log(this.textContent);
-var cityName = (this.textContent);
-//Fetching info from openweather api.
-fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=670a481f9b9e4393630b40035da27bfc`)
-  .then(function (response) {
-    return response.json();
-  })
-  .then(function (data) {
-    //Updating the info about the current day.
-    currentCity.textContent = cityName
-    currentTemp.textContent = `${data.list[0].main.temp}`
-    currentWind.textContent = `${data.list[0].wind.speed}`
-    currentHumid.textContent = `${data.list[0].main.humidity}`
-    firstDayTemp.textContent = `${data.list[6].main.temp}`
-    //Updating the info about the 5-days forecast.
-    firstDayWind.textContent = `${data.list[6].wind.speed}`
-    firstDayHumid.textContent = `${data.list[6].main.humidity}`
-    secondDayTemp.textContent = `${data.list[14].main.temp}`
-    secondDayWind.textContent = `${data.list[14].wind.speed}`
-    secondDayHumid.textContent = `${data.list[14].main.humidity}`
-    thirdDayTemp.textContent = `${data.list[22].main.temp}`
-    thirdDayWind.textContent = `${data.list[22].wind.speed}`
-    thirdDayHumid.textContent = `${data.list[22].main.humidity}`
-    fourthDayTemp.textContent = `${data.list[30].main.temp}`
-    fourthDayWind.textContent = `${data.list[30].wind.speed}`
-    fourthDayHumid.textContent = `${data.list[30].main.humidity}`
-    fifthDayTemp.textContent = `${data.list[38].main.temp}`
-    fifthDayWind.textContent = `${data.list[38].wind.speed}`
-    fifthDayHumid.textContent = `${data.list[38].main.humidity}`
-    //Updating the weather icons from the api.
-    todayIcon.src = `https://openweathermap.org/img/wn/${data.list[0].weather[0].icon}.png`
-    firstDayIcon.src = `https://openweathermap.org/img/wn/${data.list[6].weather[0].icon}.png`
-    secondDayIcon.src = `https://openweathermap.org/img/wn/${data.list[14].weather[0].icon}.png`
-    thirdDayIcon.src = `https://openweathermap.org/img/wn/${data.list[22].weather[0].icon}.png`
-    fourthDayIcon.src = `https://openweathermap.org/img/wn/${data.list[30].weather[0].icon}.png`
-    fifthDayIcon.src = `https://openweathermap.org/img/wn/${data.list[38].weather[0].icon}.png`
-  })
-}
-
-
-//Fetching data from the api about our default city in the website.
-fetch("https://api.openweathermap.org/data/2.5/forecast?q=philadelphia&appid=670a481f9b9e4393630b40035da27bfc")
-  .then(function (answer) {
-    return answer.json(); 
-  })
-  .then(function (data) {
-    //Updating the info about the current day.
-    currentTemp.textContent = `${data.list[0].main.temp}`
-    currentWind.textContent = `${data.list[0].wind.speed}`
-    currentHumid.textContent = `${data.list[0].main.humidity}`
-    //Updating the info about the 5-days forecast.
-    firstDayTemp.textContent = `${data.list[6].main.temp}`
-    firstDayWind.textContent = `${data.list[6].wind.speed}`
-    firstDayHumid.textContent = `${data.list[6].main.humidity}`
-    secondDayTemp.textContent = `${data.list[14].main.temp}`
-    secondDayWind.textContent = `${data.list[14].wind.speed}`
-    secondDayHumid.textContent = `${data.list[14].main.humidity}`
-    thirdDayTemp.textContent = `${data.list[22].main.temp}`
-    thirdDayWind.textContent = `${data.list[22].wind.speed}`
-    thirdDayHumid.textContent = `${data.list[22].main.humidity}`
-    fourthDayTemp.textContent = `${data.list[30].main.temp}`
-    fourthDayWind.textContent = `${data.list[30].wind.speed}`
-    fourthDayHumid.textContent = `${data.list[30].main.humidity}`
-    fifthDayTemp.textContent = `${data.list[38].main.temp}`
-    fifthDayWind.textContent = `${data.list[38].wind.speed}`
-    fifthDayHumid.textContent = `${data.list[38].main.humidity}`
-    //Updating the weather icons from the api.
-    todayIcon.src = `https://openweathermap.org/img/wn/${data.list[0].weather[0].icon}.png`
-    firstDayIcon.src = `https://openweathermap.org/img/wn/${data.list[6].weather[0].icon}.png`
-    secondDayIcon.src = `https://openweathermap.org/img/wn/${data.list[22].weather[0].icon}.png`
-    thirdDayIcon.src = `https://openweathermap.org/img/wn/${data.list[14].weather[0].icon}.png`
-    fourthDayIcon.src = `https://openweathermap.org/img/wn/${data.list[30].weather[0].icon}.png`
-    fifthDayIcon.src = `https://openweathermap.org/img/wn/${data.list[38].weather[0].icon}.png`
-  });
-
-
-
-
-//Function when we click search button and we get info about the city that we searched.
-function getWeather() {
-var nameCity = searchCity.value;
-console.log(nameCity)
-console.log(searchCity.value);
-fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${nameCity}&appid=670a481f9b9e4393630b40035da27bfc`)
-  .then(function (response) {
-    return response.json();
-  })
-  .then(function (data) {
-    //Updating the info about the current day.
-    currentCity.textContent = nameCity
-    currentTemp.textContent = `${data.list[0].main.temp}`
-    currentWind.textContent = `${data.list[0].wind.speed}`
-    currentHumid.textContent = `${data.list[0].main.humidity}`
-    //Updating the info about the 5-days forecast.
-    firstDayTemp.textContent = `${data.list[6].main.temp}`
-    firstDayWind.textContent = `${data.list[6].wind.speed}`
-    firstDayHumid.textContent = `${data.list[6].main.humidity}`
-    secondDayTemp.textContent = `${data.list[14].main.temp}`
-    secondDayWind.textContent = `${data.list[14].wind.speed}`
-    secondDayHumid.textContent = `${data.list[14].main.humidity}`
-    thirdDayTemp.textContent = `${data.list[22].main.temp}`
-    thirdDayWind.textContent = `${data.list[22].wind.speed}`
-    thirdDayHumid.textContent = `${data.list[22].main.humidity}`
-    fourthDayTemp.textContent = `${data.list[30].main.temp}`
-    fourthDayWind.textContent = `${data.list[30].wind.speed}`
-    fourthDayHumid.textContent = `${data.list[30].main.humidity}`
-    fifthDayTemp.textContent = `${data.list[38].main.temp}`
-    fifthDayWind.textContent = `${data.list[38].wind.speed}`
-    fifthDayHumid.textContent = `${data.list[38].main.humidity}`
-    //Updating the weather icons from the api.
-    todayIcon.src = `https://openweathermap.org/img/wn/${data.list[0].weather[0].icon}.png`
-    firstDayIcon.src = `https://openweathermap.org/img/wn/${data.list[6].weather[0].icon}.png`
-    secondDayIcon.src = `https://openweathermap.org/img/wn/${data.list[14].weather[0].icon}.png`
-    thirdDayIcon.src = `https://openweathermap.org/img/wn/${data.list[22].weather[0].icon}.png`
-    fourthDayIcon.src = `https://openweathermap.org/img/wn/${data.list[30].weather[0].icon}.png`
-    fifthDayIcon.src = `https://openweathermap.org/img/wn/${data.list[38].weather[0].icon}.png`
-})
-//Saving thhe cities that we searched into local storage.
-var citiesList = JSON.parse(localStorage.getItem("searchedCities")) || [];
-citiesList.push(searchCity.value);
-localStorage.setItem("searchedCities",JSON.stringify(citiesList));
-//Displaying the cities in the local storage into the website.
-for(var i = 0; i < citiesList.length; i++) {
-  var citiesList = [];
-  citiesList.push(searchCity.value);
-  //Creating buttons with our past searched cities.
-  var list = document.createElement("button");
-  list.textContent = citiesList[i];
-  //Setting attributes to those buttons.
-  list.setAttribute("class", "col-12 col-md-8");
-  list.setAttribute("style", "background-color: rgb(9, 133, 235); color: aliceblue; border-style: hidden; margin-top: 2%")
-  //Appending these buttons into the section.
-  searchData.append(list);
-}
-};
-
-searchBtn.addEventListener("click", getWeather);
-
-init();
+$("#buttons-list").on("click", "button", function () {
+    var buttonId = $(this).attr("id");
+    var cityName = $(this).html();
+    searchCity(buttonId, cityName);
+});
