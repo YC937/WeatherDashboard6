@@ -92,7 +92,7 @@ function init() {
         var cityName = cityBtnList[i];
         console.log(cityName);
         var newBu = $('<button>', {
-            class: 'btn btn-secondary',
+            class: 'btn',
             text: cityName
         });
         $('.list-group').append(newBu);
