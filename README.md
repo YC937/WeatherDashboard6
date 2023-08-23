@@ -2,7 +2,7 @@
 
 ## Description
 
-The goal of this project is to learn how to use server-side APIs. Data should be pulled from the Weather API by using the 'fetch' and 'then' methods in JS and add it to the page. 
+The goal of this project is to learn how to use server-side APIs. Data should be pulled from the Weather API by using the fetch function in JS and add it to the page. 
 
 Screenshots of webpage:
 
