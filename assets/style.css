@@ -20,7 +20,7 @@ padding: 8px;
 
 #search-btn {
     text-align: center;
-    color: aliceblue;
+    color: rgb(255, 255, 255);
     background: #4b6fb3;
     margin: 2px;
     min-width: 110px;
@@ -40,5 +40,5 @@ p {
 
 .card-body {
     background-color: #302f8d;
-    color: azure;
+    color: rgb(255, 255, 255);
 }
