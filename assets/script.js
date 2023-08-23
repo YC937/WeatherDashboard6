@@ -53,7 +53,7 @@ function getCurW(ci) {
         }
     }).fail(function (hr, status, error) {
         var response = hr.responseJSON;
-        if (response && response.cod && response.cod !== '200') {
+        if (response && response.cod && response.cod !== '0') {
           alert("Error: " + response.message);
         } else {
           alert("Error: " + error);
